@@ -1,5 +1,4 @@
 local unpack = table.unpack or unpack
-local mobdebug = require "mobdebug"
 local json = require "json"
 
 function lines_from(file)
@@ -8,8 +7,6 @@ function lines_from(file)
     f:close()
 	return t
 end
-
-local function serialize(value, options) return mobdebug.line(value, options) end
 
 function FixUTF8(s, repl)
   local p, len, invalid = 1, #s, {}
@@ -115,7 +112,7 @@ for _,frame in ipairs(stack) do
 --print("CALL ITEM: " .. text)
   local frame_info = {}
   frame_info.name = func_name
-  frame_info.file = path .. call[2]
+  frame_info.file = path ..'/'.. call[2]
   frame_info.line = call[4]
 	frame_info.path = call[2]
   local variables = {}

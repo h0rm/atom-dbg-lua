@@ -152,9 +152,9 @@ module.exports = DbgLua =
     name: 'dbg-lua'
     description: "Lua debugger"
 
-    canHandleOptions: (options) =>
-      return new Promise(fulfill, reject) =>
-            fulfill true
+    canHandleOptions: (options) ->
+       return new Promise (fulfill) =>
+          fulfill true
 
     debug: @debug.bind this
     stop: @stop.bind this

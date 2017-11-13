@@ -48,7 +48,8 @@ class MobDebug
     return (filepath.replace /\\/g, '/').replace /[\s\t\n]/g, '\\ '
 
   start: (options) ->
-    @listen(options.port||8172, options.host||'localhost')
+    console.log('LOGGING start')
+    @listen(options.port||8172, options.host||'0.0.0.0')
 
   listen: (port, host) ->
     @server = net.createServer (socket) =>
@@ -61,7 +62,7 @@ class MobDebug
         console.log 'CLOSED:', @socket.remoteAddress+':'+@socket.remotePort
         @emitter.emit @debugEvents.connectionClosed, @socket
 
-    @server.listen port||8172, host||'localhost'
+    @server.listen port||8172, host||'0.0.0.0'
 
   onReceive: (data) =>
     response = data.toString()
@@ -99,10 +100,12 @@ class MobDebug
 
   parseStack: (dump) ->
     new Promise (resolve, reject) =>
+      console.log 'Parsing stack'
       output = ''
       script = path.resolve __dirname, './lua_stack.lua'
+      console.log @escapePath(atom.project.getPaths()[0])
       @process = new BufferedProcess
-        command: 'lua'
+        command: 'luajit'
         args: [script]
         options:
           cwd: atom.project.getPaths()[0]
@@ -110,9 +113,10 @@ class MobDebug
           output += data
         stderr: (data) =>
           output += data
-          @emitter.emit @debugEvents.error, error
+          @emitter.emit @debugEvents.error, 'error'
           reject output
         exit: (data) =>
+          console.log output
           result = JSON.parse output
           @emitter.emit @debugEvents.receivedStack, result
           resolve result
@@ -127,6 +131,8 @@ class MobDebug
     @socket.write command.toUpperCase()+' '+arg+'\n'
 
   addBreakpoint: ({path, line}) ->
+      console.log 'adding breakpoint', path
+      console.log 'escpaed path = ', @escapePath(path)
       @sendCommand @commands.setBreakpoint, [@escapePath(path), line], not @running
 
 
